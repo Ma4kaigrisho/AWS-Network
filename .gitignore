@@ -2,3 +2,7 @@
 terraform.tfstate
 .terraform.lock.hcl
 terraform.tfstate.backup
+private
+private.pub
+public
+public.pub

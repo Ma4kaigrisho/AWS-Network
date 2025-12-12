@@ -101,6 +101,26 @@ resource "aws_network_acl_association" "pub_acl" {
 resource "aws_network_acl" "private_acl" {
   vpc_id = aws_vpc.nextwork_vpc.id
 
+  ingress {
+    protocol   = "icmp"
+    rule_no    = 100
+    cidr_block = "10.0.0.0/24"
+    from_port  = 0
+    to_port    = 0
+    action     = "allow"
+    icmp_code = -1
+    icmp_type = -1
+  }
+  egress {
+    protocol   = "icmp"
+    rule_no    = 100
+    cidr_block = "10.0.0.0/24"
+    from_port  = 0
+    to_port    = 0
+    action     = "allow"
+    icmp_code = -1
+    icmp_type = -1
+  }
   tags = {
     Name = "Private_ACL"
   }
@@ -163,22 +183,21 @@ resource "aws_vpc_security_group_ingress_rule" "allow_ssh" {
   to_port                      = 22
 }
 
-data "aws_ami" "ami" {
-  most_recent = true
-
-  filter {
-    name   = "name"
-    values = ["al2023-ami-*-x86_64"]
-  }
-
-  filter {
-    name   = "architecture"
-    values = ["x86_64"]
-  }
-
-  owners = ["137112412989"] # Canonical
+resource "aws_vpc_security_group_ingress_rule" "allow_icmp_inbound" {
+  security_group_id            = aws_security_group.private_group.id
+  referenced_security_group_id = aws_security_group.public_group.id
+  ip_protocol                  = "icmp"
+  from_port                    = -1
+  to_port                      = -1
 }
 
+resource "aws_vpc_security_group_egress_rule" "allow_icmp_outbound" {
+  security_group_id            = aws_security_group.private_group.id
+  referenced_security_group_id = aws_security_group.public_group.id
+  ip_protocol                  = "icmp"
+  from_port                    = -1
+  to_port                      = -1
+}
 resource "aws_key_pair" "public" {
   key_name   = "public"
   public_key = file("public.pub")
@@ -190,7 +209,7 @@ resource "aws_key_pair" "private" {
 }
 
 resource "aws_instance" "web" {
-  ami                         = data.aws_ami.ami.id
+  ami                         = "ami-0b46816ffa1234887"
   instance_type               = "t3.micro"
   subnet_id                   = aws_subnet.public.id
   associate_public_ip_address = true
@@ -202,7 +221,7 @@ resource "aws_instance" "web" {
 }
 
 resource "aws_instance" "private_ins" {
-  ami                    = data.aws_ami.ami.id
+  ami                    = "ami-0b46816ffa1234887"
   instance_type          = "t3.micro"
   subnet_id              = aws_subnet.private.id
   key_name               = aws_key_pair.private.key_name
@@ -211,3 +230,5 @@ resource "aws_instance" "private_ins" {
     Name = "Private Machine"
   }
 }
+
+## add  a rule to allow inbound and outbound ICMP traffic for the private ACL and security group
