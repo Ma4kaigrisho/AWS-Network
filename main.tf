@@ -32,6 +32,7 @@ resource "aws_internet_gateway" "gw" {
   }
 }
 
+# Redirect all externel communication to the internet gateway
 resource "aws_route_table" "public_route" {
   vpc_id = aws_vpc.nextwork_vpc.id
 
@@ -44,6 +45,7 @@ resource "aws_route_table" "public_route" {
   }
 }
 
+#Keep traffic internal
 resource "aws_route_table" "private_route" {
   vpc_id = aws_vpc.nextwork_vpc.id
 
@@ -67,6 +69,7 @@ resource "aws_route_table_association" "priv" {
   route_table_id = aws_route_table.private_route.id
 }
 
+# Allow all traffic for the public server
 resource "aws_network_acl" "public_acl" {
   vpc_id = aws_vpc.nextwork_vpc.id
 
@@ -98,6 +101,7 @@ resource "aws_network_acl_association" "pub_acl" {
   network_acl_id = aws_network_acl.public_acl.id
 }
 
+#Allow icmp traffic from and to the private subnet. ICMP type and code are set to -1 to allow all ICMP traffic
 resource "aws_network_acl" "private_acl" {
   vpc_id = aws_vpc.nextwork_vpc.id
 
@@ -141,6 +145,7 @@ resource "aws_security_group" "public_group" {
   }
 }
 
+# Allow SSH connection to the public server
 resource "aws_vpc_security_group_ingress_rule" "allow_ssh_inbound" {
   security_group_id = aws_security_group.public_group.id
   cidr_ipv4         = "0.0.0.0/0"
@@ -149,6 +154,7 @@ resource "aws_vpc_security_group_ingress_rule" "allow_ssh_inbound" {
   to_port           = 22
 }
 
+# Allow HTTP communication to the public server
 resource "aws_vpc_security_group_ingress_rule" "allow_http_inbound" {
   security_group_id = aws_security_group.public_group.id
   cidr_ipv4         = "0.0.0.0/0"
@@ -157,6 +163,7 @@ resource "aws_vpc_security_group_ingress_rule" "allow_http_inbound" {
   to_port           = 80
 }
 
+# Allow all outbound traffic from the public server
 resource "aws_vpc_security_group_egress_rule" "allow_all_outbound" {
   security_group_id = aws_security_group.public_group.id
   cidr_ipv4         = "0.0.0.0/0"
@@ -175,6 +182,7 @@ resource "aws_security_group" "private_group" {
   }
 }
 
+# Allow SSH connection to the private server only from the Public security group
 resource "aws_vpc_security_group_ingress_rule" "allow_ssh" {
   security_group_id            = aws_security_group.private_group.id
   referenced_security_group_id = aws_security_group.public_group.id
@@ -183,6 +191,7 @@ resource "aws_vpc_security_group_ingress_rule" "allow_ssh" {
   to_port                      = 22
 }
 
+# Allow ICMP traffic to the private instance
 resource "aws_vpc_security_group_ingress_rule" "allow_icmp_inbound" {
   security_group_id            = aws_security_group.private_group.id
   referenced_security_group_id = aws_security_group.public_group.id
@@ -191,6 +200,7 @@ resource "aws_vpc_security_group_ingress_rule" "allow_icmp_inbound" {
   to_port                      = -1
 }
 
+# Allow ICMP traffic from the private instance
 resource "aws_vpc_security_group_egress_rule" "allow_icmp_outbound" {
   security_group_id            = aws_security_group.private_group.id
   referenced_security_group_id = aws_security_group.public_group.id
@@ -230,5 +240,3 @@ resource "aws_instance" "private_ins" {
     Name = "Private Machine"
   }
 }
-
-## add  a rule to allow inbound and outbound ICMP traffic for the private ACL and security group
