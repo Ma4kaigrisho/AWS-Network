@@ -17,7 +17,6 @@ resource "aws_subnet" "public" {
 resource "aws_subnet" "private" {
   vpc_id     = aws_vpc.production_vpc.id
   cidr_block = "10.1.1.0/24"
-
   tags = {
     Name = "Private"
   }
@@ -40,6 +39,7 @@ resource "aws_route_table" "public_route" {
     gateway_id = aws_internet_gateway.gw.id
   }
 
+  ## Adding a route for the peered VPC
   route  {
     cidr_block = "10.2.0.0/16"
     vpc_peering_connection_id = aws_vpc_peering_connection.peer.id
@@ -55,7 +55,7 @@ resource "aws_route_table" "private_route" {
   vpc_id = aws_vpc.production_vpc.id
   
   route  {
-    cidr_block = "10.2.0.0/16"
+    cidr_block = var.second_vpc_ip
     vpc_peering_connection_id = aws_vpc_peering_connection.peer.id
   }
 
@@ -263,7 +263,7 @@ resource "aws_vpc" "second_vpc" {
 
 resource "aws_subnet" "staging_subnet" {
   vpc_id     = aws_vpc.second_vpc.id
-  cidr_block = "10.2.0.0/24"
+  cidr_block = var.second_vpc_ip
   tags = {
     Name = "Staging Public Subnet"
   }
@@ -284,8 +284,9 @@ resource "aws_route_table" "staging_rt" {
     gateway_id = aws_internet_gateway.staging_igw.id
   }
 
+  ## Adding a route for the peered VPC
   route  {
-    cidr_block = "10.1.0.0/16"
+    cidr_block = var.first_vpc_ip
     vpc_peering_connection_id = aws_vpc_peering_connection.peer.id
   }
 
@@ -358,8 +359,44 @@ resource "aws_instance" "staging_instance" {
   }
 }
 
+# VPC Peering connection for the two VPCs
 resource "aws_vpc_peering_connection" "peer" {
   vpc_id      = aws_vpc.production_vpc.id
   peer_vpc_id = aws_vpc.second_vpc.id
   auto_accept = true
+}
+
+# CloudWatch log group to store data under 1 file
+resource "aws_cloudwatch_log_group" "traffic_group" {
+  name = "VPCFlowLogsGroup"
+}
+
+# Flow log under production VPC
+resource "aws_flow_log" "flow_log" {
+  vpc_id = aws_vpc.production_vpc.id
+  traffic_type = "ALL"
+  log_destination = aws_cloudwatch_log_group.traffic_group.arn
+  max_aggregation_interval = 60
+  iam_role_arn = aws_iam_role.flow_role.arn
+}
+
+# IAM policy defining the permissions that will be given to the Flow Log
+resource "aws_iam_policy" "flow_policy" {
+  name = "VPCFlowLogPolicy"
+  path = "/"
+  description = "Policy for the Flow Log"
+  policy = file("flow_log_policy.json")
+
+}
+
+# IAM role defining who will be able to get the role assigned
+resource "aws_iam_role" "flow_role" {
+  name = "VPCFlowLogsRole"
+  assume_role_policy = file("flow_log_role.json")
+}
+
+# Attaching the policy to the role
+resource "aws_iam_role_policy_attachment" "flow_attach" {
+  role = aws_iam_role.flow_role.name
+  policy_arn = aws_iam_policy.flow_policy.arn
 }
