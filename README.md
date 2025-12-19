@@ -1,10 +1,8 @@
-## VPC Monitoring with Flow Logs
+# AWS Network
 
 ![image](https://github.com/Ma4kaigrisho/AWS-Network/blob/master/diagram.png?raw=true)
 
 <img src="https://cdn.prod.website-files.com/677c400686e724409a5a7409/6790ad949cf622dc8dcd9fe4_nextwork-logo-leather.svg" alt="NextWork" width="300" />
-
-# VPC Monitoring with Flow Logs
 
 **Project Link:** [View Project](http://learn.nextwork.org/projects/aws-networks-monitoring)
 
@@ -162,4 +160,5 @@ I ran the query Top 10 byte transfers by source and destination IP addresses. Th
 ---
 
 ---
+
 
