@@ -40,8 +40,8 @@ resource "aws_route_table" "public_route" {
   }
 
   ## Adding a route for the peered VPC
-  route  {
-    cidr_block = "10.2.0.0/16"
+  route {
+    cidr_block                = "10.2.0.0/16"
     vpc_peering_connection_id = aws_vpc_peering_connection.peer.id
   }
 
@@ -53,9 +53,9 @@ resource "aws_route_table" "public_route" {
 #Keep traffic internal
 resource "aws_route_table" "private_route" {
   vpc_id = aws_vpc.production_vpc.id
-  
-  route  {
-    cidr_block = var.second_vpc_ip
+
+  route {
+    cidr_block                = var.second_vpc_ip
     vpc_peering_connection_id = aws_vpc_peering_connection.peer.id
   }
 
@@ -285,8 +285,8 @@ resource "aws_route_table" "staging_rt" {
   }
 
   ## Adding a route for the peered VPC
-  route  {
-    cidr_block = var.first_vpc_ip
+  route {
+    cidr_block                = var.first_vpc_ip
     vpc_peering_connection_id = aws_vpc_peering_connection.peer.id
   }
 
@@ -373,30 +373,52 @@ resource "aws_cloudwatch_log_group" "traffic_group" {
 
 # Flow log under production VPC
 resource "aws_flow_log" "flow_log" {
-  vpc_id = aws_vpc.production_vpc.id
-  traffic_type = "ALL"
-  log_destination = aws_cloudwatch_log_group.traffic_group.arn
+  vpc_id                   = aws_vpc.production_vpc.id
+  traffic_type             = "ALL"
+  log_destination          = aws_cloudwatch_log_group.traffic_group.arn
   max_aggregation_interval = 60
-  iam_role_arn = aws_iam_role.flow_role.arn
+  iam_role_arn             = aws_iam_role.flow_role.arn
 }
 
 # IAM policy defining the permissions that will be given to the Flow Log
 resource "aws_iam_policy" "flow_policy" {
-  name = "VPCFlowLogPolicy"
-  path = "/"
+  name        = "VPCFlowLogPolicy"
+  path        = "/"
   description = "Policy for the Flow Log"
-  policy = file("flow_log_policy.json")
+  policy      = file("flow_log_policy.json")
 
 }
 
 # IAM role defining who will be able to get the role assigned
 resource "aws_iam_role" "flow_role" {
-  name = "VPCFlowLogsRole"
+  name               = "VPCFlowLogsRole"
   assume_role_policy = file("flow_log_role.json")
 }
 
 # Attaching the policy to the role
 resource "aws_iam_role_policy_attachment" "flow_attach" {
-  role = aws_iam_role.flow_role.name
+  role       = aws_iam_role.flow_role.name
   policy_arn = aws_iam_policy.flow_policy.arn
+}
+
+resource "aws_s3_bucket" "prod_bucket" {
+  bucket        = "production-vpc-project-nikola"
+  force_destroy = true
+
+  tags = {
+    Name        = " Production Bucket"
+    Environment = "Prod"
+  }
+}
+
+resource "aws_s3_object" "first_object" {
+  bucket = aws_s3_bucket.prod_bucket.bucket
+  key    = "company_logo.jpg"
+  source = "bucket_objects/company_logo.jpg"
+}
+
+resource "aws_s3_object" "second_object" {
+  bucket = aws_s3_bucket.prod_bucket.bucket
+  key    = "company_photo.jpg"
+  source = "bucket_objects/company_photo.jpg"
 }
