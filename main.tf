@@ -404,11 +404,17 @@ resource "aws_iam_role_policy_attachment" "flow_attach" {
 resource "aws_s3_bucket" "prod_bucket" {
   bucket        = "production-vpc-project-nikola"
   force_destroy = true
+  
 
   tags = {
     Name        = " Production Bucket"
     Environment = "Prod"
   }
+}
+
+resource "aws_s3_bucket_public_access_block" "bucket_block" {
+  bucket = aws_s3_bucket.prod_bucket.id
+  block_public_policy = false
 }
 
 resource "aws_s3_object" "first_object" {
@@ -422,3 +428,54 @@ resource "aws_s3_object" "second_object" {
   key    = "company_photo.jpg"
   source = "bucket_objects/company_photo.jpg"
 }
+
+# Endpoint for private communication between Prod VPC and S3
+resource "aws_vpc_endpoint" "s3_endpoint" {
+  vpc_id       = aws_vpc.production_vpc.id
+  service_name = "com.amazonaws.eu-north-1.s3"
+
+  tags = {
+    Environment = "Prod"
+  }
+}
+
+resource "aws_vpc_endpoint_route_table_association" "endpoint_route" {
+  route_table_id  = aws_route_table.public_route.id
+  vpc_endpoint_id = aws_vpc_endpoint.s3_endpoint.id
+}
+
+# Bucket Policy that denies all traffic to the Bucket unless its coming from the Prod VPC or the terraform user
+data "aws_iam_policy_document" "deny_all_except_endpoint_policy" {
+  statement {
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+    actions = ["s3:*", ]
+    effect = "Deny"
+    resources = [
+      aws_s3_bucket.prod_bucket.arn,
+      "${aws_s3_bucket.prod_bucket.arn}/*",
+    ]
+    condition {
+      test     = "StringNotEquals"
+      variable = "aws:sourceVpce"
+      values   = [aws_vpc_endpoint.s3_endpoint.id]
+    }
+    condition {
+      test     = "ArnNotEquals"
+      variable = "aws:PrincipalArn"
+      values   = ["arn:aws:iam::693744224674:user/terraform"]
+    }
+  }
+}
+
+# Attaching the Policy to the Bucket
+resource "aws_s3_bucket_policy" "deny_all_except_endpoint" {
+  bucket = aws_s3_bucket.prod_bucket.bucket
+  policy = data.aws_iam_policy_document.deny_all_except_endpoint_policy.json
+}
+
+
+# set up bucket policy
+# test connecitivity
