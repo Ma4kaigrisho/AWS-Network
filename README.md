@@ -38,31 +38,38 @@ The second stage starts where we left off. We add additional components like
 - a Network ACL - Adds security at the subnet level.
 
 ### Stage three - Creating a Private Subnet
+📄 [Detailed documentation](https://github.com/Ma4kaigrisho/AWS-Network/blob/master/Stages/stage-03-private-subnet/README.md)
 
 Third stage adds an additional subnet to the VPC with its own private route table and private Network ACL.
 
 ### Stage four - Launching VPC resources
+📄 [Detailed documentation](https://github.com/Ma4kaigrisho/AWS-Network/blob/master/Stages/stage-04-ec2-resources/README.md)
 
 The fourth stage creates 2 EC2 instances for each of the 2 subnets. The EC2 instances are configured so that they reside in each of the 2 subnets by adding them the proper vpc in the network configuration. Additionnaly we attach the appropriate security groups.
 
 ### Stage five - Testing VPC connectivity
+📄 [Detailed documentation](https://github.com/Ma4kaigrisho/AWS-Network/blob/master/Stages/stage-05-connectivity-testing/README.md)
 
 This stage is focused on troubleshooting and cofiguring communication between the previously created instances.
 We investigate the possible causes for the failed communication between the 2 instances.
 
 ### Stage six - VPC peering
+📄 [Detailed documentation](https://github.com/Ma4kaigrisho/AWS-Network/blob/master/Stages/stage-06-vpc-peering/README.md)
 
 In The sixth stage, we create a second VPC and enable private communication between the 2 VPCs utilizing VPC peering and editing the route tables.
 
 ### Stage seven - VPC Monitoring with Flow Logs
+📄 [Detailed documentation](https://github.com/Ma4kaigrisho/AWS-Network/blob/master/Stages/stage-07-flow-logs/README.md)
 
 In this stage we create Flow logs on the first VPC to monitor the inbound and outbound network traffic which is later stored in a CloudWatch log group. I then analyze the logs and their format
 
 ### Stage eight - Access S3 from a VPC
+📄 [Detailed documentation](https://github.com/Ma4kaigrisho/AWS-Network/blob/master/Stages/stage-08-s3-access/README.md)
 
 This is the first stage where we meet AWS's storage service. We create a bucket, add some content and try to access it via the EC2 instace from the first VPC.
 
 ### Stage nine - VPC Endpoints.
+📄 [Detailed documentation](https://github.com/Ma4kaigrisho/AWS-Network/blob/master/Stages/stage-09-vpc-endpoints/README.md)
 
 The final stage of this project focuses on creating a VPC endpoint which enables private communication between the VPC resources and the S3 bucket. Additionally, we disable any outside access using a bucket policy so that the bucket can be access only through the private endpoint.
 
