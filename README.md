@@ -2,12 +2,21 @@
 
 ![image](https://github.com/Ma4kaigrisho/AWS-Network/blob/master/diagram.png?raw=true)
 
-<img src="https://cdn.prod.website-files.com/677c400686e724409a5a7409/6790ad949cf622dc8dcd9fe4_nextwork-logo-leather.svg" alt="NextWork" width="300" />
+## Inspired by
 
-**Project Link:** [View Project](http://learn.nextwork.org/projects/aws-networks-monitoring)
+![Image](http://learn.nextwork.org/determined_gold_quiet_peafowl/uploads/aws-networks-endpoints_09bcaa8a)
 
-**Author:** Nikola Ivanov  
-**Email:** ivanovnikola0021@gmail.com
+---
+
+## Overview!
+
+Welcome to my AWS Network. In this project I am demostrating the various networking components you can utilize in a network hosted on the AWS Cloud.
+
+What is included in this project.
+
+The project includes technologies like VPC and its foundational components like subents, ACLs, security groups, route tables. Additionally we take a look at VPC peering, VPC Flow logs and VPC Endpoints. 
+
+Each progression of this project will be separated into its own stage where each stage is an upgrade of the previous one
 
 ---
 
