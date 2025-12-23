@@ -16,19 +16,21 @@ What is included in this project.
 
 The project includes technologies like VPC and its foundational components like subents, ACLs, security groups, route tables. Additionally we take a look at VPC peering, VPC Flow logs and VPC Endpoints. 
 
-Each progression of this project will be separated into its own stage where each stage is an upgrade of the previous one
+Each progression of this project will be separated into its own stage and can be treated as a mini-project of its own where each stage is an upgrade of the previous one.
 
-While this documentation showcases how I created everything from the AWS console, I have also created a Terraform configuration for the whole infrastructure. Go to the bottom of the page to learn more.
+While the documentation showcases how I create everything from the AWS console, I have also created a Terraform configuration for the whole infrastructure. Go to the bottom of the page to learn more.
 
 
 ## Stages Overview
 
 ### Stage one - Build a Virtual Private Cloud
+📄 [Detailed documentation](https://github.com/Ma4kaigrisho/AWS-Network/blob/master/Stages/stage-01-vpc-basics/README.md)
 
 In the very first stage of the project, I set up the initial configuration of the first VPC in the organization
 Here I set up the VPC, public subnet and an internet gateway. After that I attach the gateway to the subnet to enable Internet communication
 
 ### Stage two - VPC Traffic Flow and Security
+📄 [Detailed documentation](https://github.com/Ma4kaigrisho/AWS-Network/blob/master/Stages/stage-02-traffic-security/README.md)
 
 The second stage starts where we left off. We add additional components like 
 - a route table - Used for pointing the traffic in the right directorin. After its creation, the route table needs to be associated with the subnet.
