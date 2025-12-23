@@ -181,8 +181,6 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_outbound" {
   security_group_id = aws_security_group.public_group.id
   cidr_ipv4         = "0.0.0.0/0"
   ip_protocol       = -1
-  from_port         = 0
-  to_port           = 0
 }
 
 resource "aws_security_group" "private_group" {
@@ -221,23 +219,12 @@ resource "aws_vpc_security_group_egress_rule" "allow_icmp_outbound" {
   from_port                    = -1
   to_port                      = -1
 }
-resource "aws_key_pair" "public" {
-  key_name   = "public"
-  public_key = file("public.pub")
-}
-
-resource "aws_key_pair" "private" {
-  key_name   = "private"
-  public_key = file("private.pub")
-}
-
 resource "aws_instance" "web" {
   ami                         = "ami-0b46816ffa1234887"
   instance_type               = "t3.micro"
   subnet_id                   = aws_subnet.public.id
   associate_public_ip_address = true
   vpc_security_group_ids      = [aws_security_group.public_group.id]
-  key_name                    = aws_key_pair.public.key_name
   tags = {
     Name = "Public Web Server"
   }
@@ -247,7 +234,6 @@ resource "aws_instance" "private_ins" {
   ami                    = "ami-0b46816ffa1234887"
   instance_type          = "t3.micro"
   subnet_id              = aws_subnet.private.id
-  key_name               = aws_key_pair.private.key_name
   vpc_security_group_ids = [aws_security_group.private_group.id]
   tags = {
     Name = "Private Machine"
@@ -385,14 +371,14 @@ resource "aws_iam_policy" "flow_policy" {
   name        = "VPCFlowLogPolicy"
   path        = "/"
   description = "Policy for the Flow Log"
-  policy      = file("flow_log_policy.json")
+  policy      = file("Policies/flow_log_policy.json")
 
 }
 
 # IAM role defining who will be able to get the role assigned
 resource "aws_iam_role" "flow_role" {
   name               = "VPCFlowLogsRole"
-  assume_role_policy = file("flow_log_role.json")
+  assume_role_policy = file("Policies/flow_log_role.json")
 }
 
 # Attaching the policy to the role
@@ -404,7 +390,7 @@ resource "aws_iam_role_policy_attachment" "flow_attach" {
 resource "aws_s3_bucket" "prod_bucket" {
   bucket        = "production-vpc-project-nikola"
   force_destroy = true
-  
+
 
   tags = {
     Name        = " Production Bucket"
@@ -413,7 +399,7 @@ resource "aws_s3_bucket" "prod_bucket" {
 }
 
 resource "aws_s3_bucket_public_access_block" "bucket_block" {
-  bucket = aws_s3_bucket.prod_bucket.id
+  bucket              = aws_s3_bucket.prod_bucket.id
   block_public_policy = false
 }
 
@@ -452,7 +438,7 @@ data "aws_iam_policy_document" "deny_all_except_endpoint_policy" {
       identifiers = ["*"]
     }
     actions = ["s3:*", ]
-    effect = "Deny"
+    effect  = "Deny"
     resources = [
       aws_s3_bucket.prod_bucket.arn,
       "${aws_s3_bucket.prod_bucket.arn}/*",
@@ -475,7 +461,3 @@ resource "aws_s3_bucket_policy" "deny_all_except_endpoint" {
   bucket = aws_s3_bucket.prod_bucket.bucket
   policy = data.aws_iam_policy_document.deny_all_except_endpoint_policy.json
 }
-
-
-# set up bucket policy
-# test connecitivity
