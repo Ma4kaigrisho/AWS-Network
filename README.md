@@ -1,7 +1,6 @@
 # AWS Network
 
-![image](https://github.com/Ma4kaigrisho/AWS-Network/blob/master/diagram.png?raw=true)
-
+![diagram](https://github.com/Ma4kaigrisho/AWS-Network/blob/master/Architecture.drawio.svg?raw=true)
 ## Inspired by
 
 <img src="https://cdn.prod.website-files.com/677c400686e724409a5a7409/6790ad949cf622dc8dcd9fe4_nextwork-logo-leather.svg" alt="NextWork" width="300" />
