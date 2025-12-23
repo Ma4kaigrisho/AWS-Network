@@ -19,7 +19,7 @@ The project includes technologies like VPC and its foundational components like 
 Each progression of this project will be separated into its own stage where each stage is an upgrade of the previous one
 
 While this documentation showcases how I created everything from the AWS console, I have also created a Terraform configuration for the whole infrastructure. Go to the bottom of the page to learn more.
----
+
 
 ## Stages Overview
 
