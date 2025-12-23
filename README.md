@@ -4,7 +4,7 @@
 
 ## Inspired by
 
-![Image](http://learn.nextwork.org/determined_gold_quiet_peafowl/uploads/aws-networks-endpoints_09bcaa8a)
+<img src="https://cdn.prod.website-files.com/677c400686e724409a5a7409/6790ad949cf622dc8dcd9fe4_nextwork-logo-leather.svg" alt="NextWork" width="300" />
 
 ---
 
